@@ -90,6 +90,7 @@ PLATFORMS=(
     # xcodebuild destination    XCFramework folder name
     "macos"                     "macos-$ARCH"
     "iOS Simulator"             "ios-$ARCH-simulator"
+    "iOS"                       "ios-$ARCH"
 )
 
 XCODEBUILD_LIBRARIES=""
@@ -118,6 +119,7 @@ for ((i = 0; i < ${#PLATFORMS[@]}; i += 2)); do
         >/dev/null 2>&1
 
     for MODULE in ${MODULES[@]}; do
+        ls -oh "$DERIVED_DATA_PATH/Build/Intermediates.noindex/swift-syntax.build/$CONFIGURATION*/${MODULE}.build/Objects-normal/"
         INTERFACE_PATH="$DERIVED_DATA_PATH/Build/Intermediates.noindex/swift-syntax.build/$CONFIGURATION*/${MODULE}.build/Objects-normal/$ARCH/${MODULE}.swiftinterface"
         cp $INTERFACE_PATH "$OUTPUTS_PATH"
     done
