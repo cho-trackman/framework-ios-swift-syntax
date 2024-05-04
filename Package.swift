@@ -1,4 +1,4 @@
-// swift-tools-version: 5.10
+// swift-tools-version: 5.9
 
 import PackageDescription
 
@@ -11,7 +11,7 @@ let package = Package(
         .binaryTarget(
             name: "SwiftSyntaxWrapper",
             url: "https://github.com/vigram-sw/framework-ios-swift-syntax/releases/download/509.0.2/SwiftSyntaxWrapper.xcframework.zip",
-            checksum: "8fec7c8c1b0d00606ed9389258bfe504c91b3ee67012d76527e0641bdbcd08db"
+            checksum: "068259a911b16cba5d61c2e16b90338d0e26067e7005e5b7da55e665170135c3"
         ),
     ]
 )
