@@ -87,9 +87,9 @@ MODULES=(
 
 PLATFORMS=(
     # xcodebuild destination    XCFramework folder name
-    "macos"                     "macos_"
-    "iOS Simulator"             "ios_simulator"
-    "iOS"                       "ios_"
+    "macos"                     "macos-arm64_x86_64"
+    "iOS Simulator"             "ios-arm64_x86_64-simulator"
+    "iOS"                       "ios-arm64"
 )
 
 XCODEBUILD_LIBRARIES=""
@@ -119,9 +119,12 @@ for ((i = 0; i < ${#PLATFORMS[@]}; i += 2)); do
     for MODULE in ${MODULES[@]}; do
         for ARCH in $DERIVED_DATA_PATH/Build/Intermediates.noindex/swift-syntax.build/$CONFIGURATION*/${MODULE}.build/Objects-normal/*/ ; do
             ARCH=$(basename $ARCH)
-            INTERFACE_PATH="$DERIVED_DATA_PATH/Build/Intermediates.noindex/swift-syntax.build/$CONFIGURATION*/${MODULE}.build/Objects-normal/$ARCH/${MODULE}.swiftinterface"
-            mkdir -p "$OUTPUTS_PATH/$ARCH"
-            cp $INTERFACE_PATH "$OUTPUTS_PATH/$ARCH"
+            SOURCE="$DERIVED_DATA_PATH/Build/Intermediates.noindex/swift-syntax.build/$CONFIGURATION*/${MODULE}.build/Objects-normal/$ARCH/${MODULE}"
+            DEST="$OUTPUTS_PATH/$ARCH"
+            #echo "--- Copy file 1 $SOURCE -> $DEST"
+            mkdir -p "$DEST"
+            cp $SOURCE.swiftinterface $DEST
+            cp $SOURCE.swiftdoc $DEST
         done 
     done
 
@@ -131,24 +134,6 @@ for ((i = 0; i < ${#PLATFORMS[@]}; i += 2)); do
         # FIXME: figure out how to make xcodebuild output the .a file directly. For now, we package it ourselves.
         ar -crs "$OUTPUTS_PATH/$ARCH/$LIBRARY_NAME" $DERIVED_DATA_PATH/Build/Intermediates.noindex/swift-syntax.build/$CONFIGURATION*/*.build/Objects-normal/$ARCH/*.o
         LIPOFILES="$LIPOFILES $OUTPUTS_PATH/$ARCH/$LIBRARY_NAME"
-
-        for INTERFFILE in $OUTPUTS_PATH/$ARCH/*.swiftinterface; do 
-            INTERFFILE=$(basename $INTERFFILE)
-            INPUTFILE=$OUTPUTS_PATH/$ARCH/$INTERFFILE
-            OUTPUTFILE=$OUTPUTS_PATH/$INTERFFILE
-            OUTPUTTMPFILE=$OUTPUTS_PATH/tmp_$INTERFFILE
-            if test -f "$OUTPUTFILE"; then
-                ARCH1=$(grep -o '\/\/ swift-module-flags: -target [^ ]*' $OUTPUTFILE)
-                ARCH1=${ARCH1##* }
-                ARCH2=$(grep -o '\/\/ swift-module-flags: -target [^ ]*' $INPUTFILE)
-                ARCH2=${ARCH2##* }
-                #sed "s/\/\/ swift-module-flags\: -target [^ ]* -/\/\/ swift-module-flags\: -target ${ARCH1} ${ARCH2} -/" "$OUTPUTFILE" > "$OUTPUTTMPFILE"
-                sed "s/\/\/ swift-module-flags\: -target [^ ]* -/\/\/ swift-module-flags\: -/" "$OUTPUTFILE" > "$OUTPUTTMPFILE"
-                mv "$OUTPUTTMPFILE" "$OUTPUTFILE"
-            else
-                cp "$INPUTFILE" "$OUTPUTFILE"
-            fi
-        done
     done 
     lipo $LIPOFILES -create -output $OUTPUTS_PATH/$LIBRARY_NAME
     XCODEBUILD_LIBRARIES="$XCODEBUILD_LIBRARIES -library $OUTPUTS_PATH/$LIBRARY_NAME"
@@ -167,11 +152,23 @@ xcodebuild -quiet -create-xcframework \
     $XCODEBUILD_LIBRARIES \
     -output "${XCFRAMEWORK_PATH}" >/dev/null
 
-for ARCH in $XCFRAMEWORK_PATH/*/ ; do
-    ARCH=$(basename $ARCH)
-    DEST="$XCFRAMEWORK_PATH/$ARCH"
-    SOURCE="${PLATFORMS_OUTPUTS_PATH}/$(echo $ARCH | cut -d'-' -f 1)_$(echo $ARCH | cut -d'-' -f 3)/*.swiftinterface"
-    cp  $SOURCE $DEST/
+for XCARCH in $XCFRAMEWORK_PATH/*/ ; do
+    XCARCH=$(basename $XCARCH)
+    OUTPUTS_PATH="${PLATFORMS_OUTPUTS_PATH}/${XCARCH}"
+
+    for ARCH in $OUTPUTS_PATH/*/ ; do
+        echo "ARCH: $ARCH"
+        ARCH=$(basename $ARCH)
+        
+        for MODULE in ${MODULES[@]}; do
+            SOURCE="$PLATFORMS_OUTPUTS_PATH/$XCARCH/$ARCH/$MODULE"
+            DEST="$XCFRAMEWORK_PATH/$XCARCH/$ARCH"
+            mkdir -p $DEST
+            #echo "--- Copy file 2 $SOURCE -> $DEST"
+            cp "$SOURCE.swiftinterface" "$DEST"
+            cp "$SOURCE.swiftdoc" "$DEST"
+        done
+    done
 done
 
 zip --quiet --recurse-paths $XCFRAMEWORK_NAME.zip $XCFRAMEWORK_NAME
