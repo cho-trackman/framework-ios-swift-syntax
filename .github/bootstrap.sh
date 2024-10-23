@@ -7,6 +7,7 @@ SEMVER_PATTERN="^[0-9]+\.[0-9]+\.[0-9]+$"
 WRAPPER_NAME="SwiftSyntaxWrapper"
 CONFIGURATION="Release"
 DERIVED_DATA_PATH="$PWD/derivedData"
+COMMENT_UNSUPPORTED_SCRIPT="$PWD/comment-unsupported.py"
 
 #
 # Verify input
@@ -21,6 +22,9 @@ if ! [[ $SWIFT_SYNTAX_VERSION =~ $SEMVER_PATTERN ]]; then
     echo "The given version ($SWIFT_SYNTAX_VERSION) does not have the right format (expected X.Y.Z)."
     exit 1
 fi
+
+# DEBUG
+ls -la $PWD
 
 #
 # Print input
@@ -149,7 +153,7 @@ for ((i = 0; i < ${#PLATFORMS[@]}; i += 2)); do
                 cp "$INPUTFILE" "$OUTPUTFILE"
             fi
 
-            python ../comment-unsupported.py "$OUTPUTFILE" # python because I'm a SED n00b
+            python "$COMMENT_UNSUPPORTED_SCRIPT" "$OUTPUTFILE" # python because I'm a SED n00b
         done
     done 
     lipo $LIPOFILES -create -output $OUTPUTS_PATH/$LIBRARY_NAME
