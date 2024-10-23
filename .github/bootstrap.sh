@@ -7,7 +7,8 @@ SEMVER_PATTERN="^[0-9]+\.[0-9]+\.[0-9]+$"
 WRAPPER_NAME="SwiftSyntaxWrapper"
 CONFIGURATION="Release"
 DERIVED_DATA_PATH="$PWD/derivedData"
-COMMENT_UNSUPPORTED_SCRIPT="$PWD/comment-unsupported.py"
+SCRIPT_DIR=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
+COMMENT_UNSUPPORTED_SCRIPT="$SCRIPT_DIR/comment-unsupported.py"
 
 #
 # Verify input
@@ -24,7 +25,7 @@ if ! [[ $SWIFT_SYNTAX_VERSION =~ $SEMVER_PATTERN ]]; then
 fi
 
 # DEBUG
-ls -la $PWD
+ls -la $SCRIPT_DIR
 
 #
 # Print input
