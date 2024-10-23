@@ -24,9 +24,6 @@ if ! [[ $SWIFT_SYNTAX_VERSION =~ $SEMVER_PATTERN ]]; then
     exit 1
 fi
 
-# DEBUG
-ls -la $SCRIPT_DIR
-
 #
 # Print input
 #
@@ -152,9 +149,8 @@ for ((i = 0; i < ${#PLATFORMS[@]}; i += 2)); do
                 mv "$OUTPUTTMPFILE" "$OUTPUTFILE"
             else
                 cp "$INPUTFILE" "$OUTPUTFILE"
+                python "$COMMENT_UNSUPPORTED_SCRIPT" "$OUTPUTFILE" # python because I'm a SED n00b
             fi
-
-            python "$COMMENT_UNSUPPORTED_SCRIPT" "$OUTPUTFILE" # python because I'm a SED n00b
         done
     done 
     lipo $LIPOFILES -create -output $OUTPUTS_PATH/$LIBRARY_NAME
