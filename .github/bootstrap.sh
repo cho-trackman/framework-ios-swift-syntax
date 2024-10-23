@@ -148,6 +148,8 @@ for ((i = 0; i < ${#PLATFORMS[@]}; i += 2)); do
             else
                 cp "$INPUTFILE" "$OUTPUTFILE"
             fi
+
+            python ../comment-unsupported.py "$OUTPUTFILE" # python because I'm a SED n00b
         done
     done 
     lipo $LIPOFILES -create -output $OUTPUTS_PATH/$LIBRARY_NAME
