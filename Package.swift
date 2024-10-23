@@ -10,8 +10,8 @@ let package = Package(
     targets: [
         .binaryTarget(
             name: "SwiftSyntaxWrapper",
-            url: "https://github.com/vigram-sw/framework-ios-swift-syntax/releases/download/509.0.2/SwiftSyntaxWrapper.xcframework.zip",
-            checksum: "c4ff3be64d2d3fae5c08d674fcd85385fb8dff96623235ad71fdde03046b1251"
+            url: "https://github.com/cho-trackman/framework-ios-swift-syntax/releases/download/509.1.1/SwiftSyntaxWrapper.xcframework.zip",
+            checksum: "f9b0c00487c816bcc6d3f2557de7b18236ac5bc66a6f99c067bfc782a290e722"
         ),
     ]
 )
